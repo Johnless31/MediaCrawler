@@ -51,6 +51,8 @@ class XiaoHongShuCrawler(AbstractCrawler):
             ip_proxy_pool = await create_ip_pool(config.IP_PROXY_POOL_COUNT, enable_validate_ip=True)
             ip_proxy_info: IpInfoModel = await ip_proxy_pool.get_proxy()
             playwright_proxy_format, httpx_proxy_format = self.format_proxy_info(ip_proxy_info)
+        # os.environ['HTTP_PROXY'] = "http://127.0.0.1:8001"
+        # os.environ['HTTPS_PROXY'] = "http://127.0.0.1:8001"
 
         async with async_playwright() as playwright:
             # Launch a browser context.
@@ -96,6 +98,8 @@ class XiaoHongShuCrawler(AbstractCrawler):
             elif config.CRAWLER_TYPE == "creator":
                 # Get creator's information and their notes and comments
                 await self.get_creators_and_notes()
+            elif config.CRAWLER_TYPE == "creator_only":
+                await self.get_creators_info()
             else:
                 pass
 
@@ -104,7 +108,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
     async def search(self) -> None:
         """Search for notes and retrieve their comment information."""
         utils.logger.info("[XiaoHongShuCrawler.search] Begin search xiaohongshu keywords")
-        xhs_limit_count = 20  # xhs limit page fixed value
+        xhs_limit_count = 20  # xhs limit page fixed value, 每页固定爬取的帖子数
         if config.CRAWLER_MAX_NOTES_COUNT < xhs_limit_count:
             config.CRAWLER_MAX_NOTES_COUNT = xhs_limit_count
         start_page = config.START_PAGE
@@ -155,6 +159,14 @@ class XiaoHongShuCrawler(AbstractCrawler):
                 except DataFetchError:
                     utils.logger.error("[XiaoHongShuCrawler.search] Get note detail error")
                     break
+
+    async def get_creators_info(self) -> None:
+        utils.logger.info("[XiaoHongShuCrawler.get_creators_and_notes] Begin get xiaohongshu creators only")
+        for user_id in config.XHS_CREATOR_ID_LIST:
+            # get creator detail info from web html content
+            creator_info: Dict = await self.xhs_client.get_creator_info(user_id=user_id)
+            if creator_info:
+                await xhs_store.save_creator(user_id, creator=creator_info)
 
     async def get_creators_and_notes(self) -> None:
         """Get creator's notes and retrieve their comment information."""

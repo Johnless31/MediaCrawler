@@ -18,7 +18,7 @@ COOKIES = ""
 SORT_TYPE = "popularity_descending"
 # 具体值参见media_platform.xxx.field下的枚举值，暂时只支持抖音
 PUBLISH_TIME_TYPE = 0
-CRAWLER_TYPE = "search"  # 爬取类型，search(关键词搜索) | detail(帖子详情)| creator(创作者主页数据)
+CRAWLER_TYPE = "creator_only"  # 爬取类型，search(关键词搜索) | detail(帖子详情)| creator(创作者主页数据)| creator_only(创作者数据)
 
 # 是否开启 IP 代理
 ENABLE_IP_PROXY = False
@@ -132,7 +132,7 @@ TIEBA_CREATOR_URL_LIST = [
 
 # 指定小红书创作者ID列表
 XHS_CREATOR_ID_LIST = [
-    "63e36c9a000000002703502b",
+    "62d93804000000000e00e55f",
     # ........................
 ]
 
